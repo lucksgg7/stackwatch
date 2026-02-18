@@ -52,6 +52,16 @@ CREATE TABLE IF NOT EXISTS settings (
   id SMALLINT PRIMARY KEY,
   webhook_url TEXT,
   alert_email TEXT,
+  discord_webhook_url TEXT,
+  telegram_bot_token TEXT,
+  telegram_chat_id TEXT,
+  smtp_host TEXT,
+  smtp_port INTEGER,
+  smtp_secure BOOLEAN NOT NULL DEFAULT FALSE,
+  smtp_user TEXT,
+  smtp_pass TEXT,
+  smtp_from TEXT,
+  smtp_to TEXT,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

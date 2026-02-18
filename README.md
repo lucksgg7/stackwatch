@@ -30,7 +30,7 @@ StackWatch keeps a practical middle point:
 - CRUD for monitors.
 - HTTP and TCP checks.
 - Per-monitor interval and timeout settings.
-- Alert settings and test alert endpoint.
+- Multi-channel alert settings (Webhook, Discord, Telegram, SMTP email) and test alert endpoint.
 - Template gallery with one-click monitor creation (infra, databases, gaming, devops, platform).
 
 ### Worker and incidents

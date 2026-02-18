@@ -33,6 +33,16 @@ type Monitor = {
 type Settings = {
   webhookUrl: string;
   alertEmail: string;
+  discordWebhookUrl: string;
+  telegramBotToken: string;
+  telegramChatId: string;
+  smtpHost: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  smtpUser: string;
+  smtpPass: string;
+  smtpFrom: string;
+  smtpTo: string;
 };
 
 type AdminPanelProps = {
@@ -115,7 +125,22 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
     }
     if (sRes.ok) {
       const data = (await sRes.json()) as { settings: Settings };
-      setSettings(data.settings || { webhookUrl: "", alertEmail: "" });
+      setSettings(
+        data.settings || {
+          webhookUrl: "",
+          alertEmail: "",
+          discordWebhookUrl: "",
+          telegramBotToken: "",
+          telegramChatId: "",
+          smtpHost: "",
+          smtpPort: 587,
+          smtpSecure: false,
+          smtpUser: "",
+          smtpPass: "",
+          smtpFrom: "",
+          smtpTo: ""
+        }
+      );
     }
   };
 
@@ -448,6 +473,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
 
         <form onSubmit={saveSettings} className={`${panelClass} space-y-3`}>
           <p className="text-base font-semibold text-[#4a370c]">Alerts</p>
+          <p className="text-xs text-[#6c5418]">Legacy webhook</p>
           <input
             className={inputClass}
             placeholder="Webhook URL"
@@ -456,11 +482,83 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
           />
           <input
             className={inputClass}
-            placeholder="Email (opcional)"
-            
+            placeholder="Legacy alert email (optional)"
             value={settings.alertEmail}
             onChange={(e) => setSettings((s) => ({ ...s, alertEmail: e.target.value }))}
           />
+          <p className="pt-2 text-xs text-[#6c5418]">Discord</p>
+          <input
+            className={inputClass}
+            placeholder="Discord webhook URL"
+            value={settings.discordWebhookUrl}
+            onChange={(e) => setSettings((s) => ({ ...s, discordWebhookUrl: e.target.value }))}
+          />
+          <p className="pt-2 text-xs text-[#6c5418]">Telegram</p>
+          <input
+            className={inputClass}
+            placeholder="Telegram bot token"
+            value={settings.telegramBotToken}
+            onChange={(e) => setSettings((s) => ({ ...s, telegramBotToken: e.target.value }))}
+          />
+          <input
+            className={inputClass}
+            placeholder="Telegram chat ID"
+            value={settings.telegramChatId}
+            onChange={(e) => setSettings((s) => ({ ...s, telegramChatId: e.target.value }))}
+          />
+          <p className="pt-2 text-xs text-[#6c5418]">SMTP Email</p>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              className={inputClass}
+              placeholder="SMTP host"
+              value={settings.smtpHost}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpHost: e.target.value }))}
+            />
+            <input
+              type="number"
+              className={inputClass}
+              placeholder="SMTP port"
+              value={settings.smtpPort}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpPort: Number(e.target.value || 587) }))}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              className={inputClass}
+              placeholder="SMTP user (optional)"
+              value={settings.smtpUser}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpUser: e.target.value }))}
+            />
+            <input
+              type="password"
+              className={inputClass}
+              placeholder="SMTP password (optional)"
+              value={settings.smtpPass}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpPass: e.target.value }))}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              className={inputClass}
+              placeholder="From email"
+              value={settings.smtpFrom}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpFrom: e.target.value }))}
+            />
+            <input
+              className={inputClass}
+              placeholder="To email"
+              value={settings.smtpTo}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpTo: e.target.value }))}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm text-[#6c5418]">
+            <input
+              type="checkbox"
+              checked={settings.smtpSecure}
+              onChange={(e) => setSettings((s) => ({ ...s, smtpSecure: e.target.checked }))}
+            />
+            Use TLS/SSL (`smtpSecure`)
+          </label>
           <div className="flex gap-2">
             <button
               className={btnPrimary}

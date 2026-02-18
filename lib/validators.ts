@@ -30,7 +30,17 @@ export const monitorCreateSchema = z.object({
 
 export const settingsSchema = z.object({
   webhookUrl: z.string().url().optional().or(z.literal("")),
-  alertEmail: z.string().email().optional().or(z.literal(""))
+  alertEmail: z.string().email().optional().or(z.literal("")),
+  discordWebhookUrl: z.string().url().optional().or(z.literal("")),
+  telegramBotToken: z.string().min(10).max(200).optional().or(z.literal("")),
+  telegramChatId: z.string().min(1).max(100).optional().or(z.literal("")),
+  smtpHost: z.string().max(200).optional().or(z.literal("")),
+  smtpPort: z.number().int().min(1).max(65535).optional(),
+  smtpSecure: z.boolean().optional(),
+  smtpUser: z.string().max(200).optional().or(z.literal("")),
+  smtpPass: z.string().max(500).optional().or(z.literal("")),
+  smtpFrom: z.string().email().optional().or(z.literal("")),
+  smtpTo: z.string().email().optional().or(z.literal(""))
 });
 
 export function slugify(input: string) {

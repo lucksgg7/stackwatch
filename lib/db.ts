@@ -107,9 +107,30 @@ export async function ensureSchema() {
       id SMALLINT PRIMARY KEY,
       webhook_url TEXT,
       alert_email TEXT,
+      discord_webhook_url TEXT,
+      telegram_bot_token TEXT,
+      telegram_chat_id TEXT,
+      smtp_host TEXT,
+      smtp_port INTEGER,
+      smtp_secure BOOLEAN NOT NULL DEFAULT FALSE,
+      smtp_user TEXT,
+      smtp_pass TEXT,
+      smtp_from TEXT,
+      smtp_to TEXT,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
+
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS discord_webhook_url TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS telegram_bot_token TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_host TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_port INTEGER;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_secure BOOLEAN NOT NULL DEFAULT FALSE;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_user TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_pass TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_from TEXT;`);
+  await client.query(`ALTER TABLE settings ADD COLUMN IF NOT EXISTS smtp_to TEXT;`);
 
   await client.query(`
     INSERT INTO settings (id, webhook_url, alert_email)

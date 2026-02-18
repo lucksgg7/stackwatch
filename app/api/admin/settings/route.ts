@@ -25,7 +25,17 @@ export async function POST(request: Request) {
 
   const settings = await updateSettings({
     webhookUrl: parsed.data.webhookUrl || "",
-    alertEmail: parsed.data.alertEmail || ""
+    alertEmail: parsed.data.alertEmail || "",
+    discordWebhookUrl: parsed.data.discordWebhookUrl || "",
+    telegramBotToken: parsed.data.telegramBotToken || "",
+    telegramChatId: parsed.data.telegramChatId || "",
+    smtpHost: parsed.data.smtpHost || "",
+    smtpPort: parsed.data.smtpPort || 587,
+    smtpSecure: Boolean(parsed.data.smtpSecure),
+    smtpUser: parsed.data.smtpUser || "",
+    smtpPass: parsed.data.smtpPass || "",
+    smtpFrom: parsed.data.smtpFrom || "",
+    smtpTo: parsed.data.smtpTo || ""
   });
 
   return NextResponse.json({ settings });
