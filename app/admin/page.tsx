@@ -27,13 +27,15 @@ export default async function AdminPage() {
 
   return (
     <main
-      className="mx-auto min-h-screen w-full max-w-7xl px-4 py-8 md:px-8"
+      className="min-h-screen w-full"
       style={{
         backgroundImage:
           "radial-gradient(circle at 8% 5%, rgba(255, 232, 139, 0.7) 0%, transparent 28%), radial-gradient(circle at 90% 2%, rgba(255, 190, 60, 0.35) 0%, transparent 24%), linear-gradient(180deg, #fff9de 0%, #ffeeb5 100%)"
       }}
     >
-      <AdminPanel initialMonitors={monitors} initialSettings={settings} initialTemplates={MONITOR_TEMPLATES} />
+      <div className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8">
+        <AdminPanel initialMonitors={monitors} initialSettings={settings} initialTemplates={MONITOR_TEMPLATES} />
+      </div>
     </main>
   );
 }

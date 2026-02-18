@@ -182,7 +182,9 @@ export function PublicDashboard() {
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider ${
-              data.allOperational ? "bg-[#e4f8f0] text-[#0a7d53]" : "bg-[#ffe8e8] text-[#a02323]"
+              data.allOperational
+                ? "status-pulse-ok bg-[#e4f8f0] text-[#0a7d53]"
+                : "status-pulse-down bg-[#ffe8e8] text-[#a02323]"
             }`}
           >
             {data.allOperational ? "Healthy" : "Attention"}
