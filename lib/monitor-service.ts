@@ -1,4 +1,5 @@
 import net from "net";
+import dgram from "dgram";
 import { env } from "@/lib/env";
 import { query } from "@/lib/db";
 import { sendWebhookAlert } from "@/lib/alerts";
@@ -8,7 +9,7 @@ type DbMonitor = {
   id: number;
   slug: string;
   name: string;
-  type: "http" | "tcp";
+  type: "http" | "tcp" | "udp";
   target: string;
   expected_status: number | null;
   timeout_ms: number;
@@ -71,6 +72,41 @@ async function runTcpCheck(monitor: DbMonitor) {
     socket.once("error", (err) => {
       clearTimeout(timer);
       resolve({ ok: false, statusCode: null, latencyMs: Date.now() - started, error: err.message || "TCP error" });
+    });
+  });
+}
+
+async function runUdpCheck(monitor: DbMonitor) {
+  const [host, portRaw] = monitor.target.split(":");
+  const port = Number(portRaw);
+  const started = Date.now();
+
+  return new Promise<{ ok: boolean; statusCode: number | null; latencyMs: number; error: string | null }>((resolve) => {
+    const socket = dgram.createSocket("udp4");
+    let done = false;
+
+    const finish = (result: { ok: boolean; statusCode: number | null; latencyMs: number; error: string | null }) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      socket.close();
+      resolve(result);
+    };
+
+    const timer = setTimeout(() => {
+      // UDP is connectionless; if no send error occurs within timeout we consider host reachable.
+      finish({ ok: true, statusCode: null, latencyMs: Date.now() - started, error: null });
+    }, monitor.timeout_ms);
+
+    socket.once("error", (err) => {
+      finish({ ok: false, statusCode: null, latencyMs: Date.now() - started, error: err.message || "UDP error" });
+    });
+
+    const ping = Buffer.from([0x01]);
+    socket.send(ping, port, host, (err) => {
+      if (err) {
+        finish({ ok: false, statusCode: null, latencyMs: Date.now() - started, error: err.message || "UDP send failed" });
+      }
     });
   });
 }
@@ -160,7 +196,12 @@ export async function runChecksCycle() {
       }
     }
 
-    const check = monitor.type === "http" ? await runHttpCheck(monitor) : await runTcpCheck(monitor);
+    const check =
+      monitor.type === "http"
+        ? await runHttpCheck(monitor)
+        : monitor.type === "tcp"
+          ? await runTcpCheck(monitor)
+          : await runUdpCheck(monitor);
 
     await query(
       "INSERT INTO check_results (monitor_id, ok, status_code, latency_ms, error, checked_at) VALUES ($1,$2,$3,$4,$5,NOW())",

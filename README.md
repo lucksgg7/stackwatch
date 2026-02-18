@@ -38,7 +38,7 @@ StackWatch keeps a practical middle point:
 ### Admin panel
 - Password-protected login.
 - CRUD for monitors.
-- HTTP and TCP checks.
+- HTTP, TCP, and UDP checks.
 - Per-monitor interval and timeout settings.
 - Multi-channel alert settings (Webhook, Discord, Telegram, SMTP email) and test alert endpoint.
 - Template gallery with one-click monitor creation (infra, databases, gaming, devops, platform).
@@ -193,6 +193,9 @@ To inspect worker activity:
 ```bash
 docker service logs -f status_status_worker
 ```
+
+UDP note:
+- UDP checks validate datagram send/reachability and are best-effort by nature (connectionless protocol).
 
 ## Project quality checklist
 

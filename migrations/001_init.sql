@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS monitors (
   id BIGSERIAL PRIMARY KEY,
   slug TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('http', 'tcp')),
+  type TEXT NOT NULL CHECK (type IN ('http', 'tcp', 'udp')),
   target TEXT NOT NULL,
   interval_sec INTEGER NOT NULL,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,

@@ -5,7 +5,7 @@ const tcpTargetRegex = /^(?:[a-zA-Z0-9.-]+):(\d{1,5})$/;
 
 export const monitorCreateSchema = z.object({
   name: z.string().min(2).max(120),
-  type: z.enum(["http", "tcp"]),
+  type: z.enum(["http", "tcp", "udp"]),
   target: z.string().min(3).max(500),
   expectedStatus: z.number().int().min(100).max(599).optional(),
   timeoutMs: z.number().int().min(500).max(30000).default(5000),
@@ -15,10 +15,10 @@ export const monitorCreateSchema = z.object({
   if (value.type === "http" && !httpUrlRegex.test(value.target)) {
     ctx.addIssue({ code: "custom", message: "HTTP monitor target must be a valid http(s) URL", path: ["target"] });
   }
-  if (value.type === "tcp") {
+  if (value.type === "tcp" || value.type === "udp") {
     const m = value.target.match(tcpTargetRegex);
     if (!m) {
-      ctx.addIssue({ code: "custom", message: "TCP monitor target must be host:port", path: ["target"] });
+      ctx.addIssue({ code: "custom", message: `${value.type.toUpperCase()} monitor target must be host:port`, path: ["target"] });
       return;
     }
     const port = Number(m[1]);

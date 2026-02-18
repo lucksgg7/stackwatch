@@ -21,7 +21,7 @@ type Monitor = {
   id: number;
   slug: string;
   name: string;
-  type: "http" | "tcp";
+  type: "http" | "tcp" | "udp";
   target: string;
   expected_status: number | null;
   timeout_ms: number;
@@ -53,7 +53,7 @@ type AdminPanelProps = {
 
 const defaultForm = {
   name: "",
-  type: "http" as "http" | "tcp",
+  type: "http" as "http" | "tcp" | "udp",
   target: "",
   expectedStatus: 200,
   timeoutMs: 5000,
@@ -408,10 +408,11 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
           <select
             className={inputClass}
             value={form.type}
-            onChange={(e) => setForm((p) => ({ ...p, type: e.target.value as "http" | "tcp" }))}
+            onChange={(e) => setForm((p) => ({ ...p, type: e.target.value as "http" | "tcp" | "udp" }))}
           >
             <option value="http">HTTP</option>
             <option value="tcp">TCP</option>
+            <option value="udp">UDP</option>
           </select>
           <input
             className={inputClass}

@@ -1,5 +1,5 @@
 ﻿export type MonitorTemplateCategory = "infra" | "database" | "gaming" | "devops" | "platform";
-export type MonitorTemplateType = "http" | "tcp";
+export type MonitorTemplateType = "http" | "tcp" | "udp";
 export type MonitorTemplateIcon =
   | "server"
   | "globe"
@@ -217,11 +217,11 @@ export const MONITOR_TEMPLATES: MonitorTemplate[] = [
   {
     id: "hytale",
     name: "Hytale",
-    description: "Hytale server reachability (adjust port if needed).",
+    description: "Hytale UDP reachability (adjust port if needed).",
     category: "gaming",
     icon: "gamepad",
-    type: "tcp",
-    targetPattern: "{{host}}:25565",
+    type: "udp",
+    targetPattern: "{{host}}:2456",
     targetHint: "hytale.example.com",
     timeoutMs: 4000,
     intervalSec: 45

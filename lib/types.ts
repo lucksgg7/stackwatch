@@ -1,4 +1,4 @@
-export type MonitorType = "http" | "tcp";
+export type MonitorType = "http" | "tcp" | "udp";
 
 export interface Monitor {
   id: number;

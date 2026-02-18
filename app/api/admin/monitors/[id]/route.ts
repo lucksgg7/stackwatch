@@ -21,7 +21,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid payload" }, { status: 400 });
   }
 
-  const current = await query<{ id: number; name: string; type: "http" | "tcp"; target: string; expected_status: number | null; timeout_ms: number; interval_sec: number; enabled: boolean }>(
+  const current = await query<{ id: number; name: string; type: "http" | "tcp" | "udp"; target: string; expected_status: number | null; timeout_ms: number; interval_sec: number; enabled: boolean }>(
     "SELECT id, name, type, target, expected_status, timeout_ms, interval_sec, enabled FROM monitors WHERE id = $1 LIMIT 1",
     [monitorId]
   );

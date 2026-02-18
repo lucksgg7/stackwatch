@@ -35,7 +35,7 @@ export async function ensureSchema() {
       id BIGSERIAL PRIMARY KEY,
       slug TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
-      type TEXT NOT NULL CHECK (type IN ('http', 'tcp')),
+      type TEXT NOT NULL CHECK (type IN ('http', 'tcp', 'udp')),
       target TEXT NOT NULL,
       expected_status INTEGER,
       timeout_ms INTEGER NOT NULL DEFAULT 5000,
@@ -47,6 +47,9 @@ export async function ensureSchema() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
+
+  await client.query(`ALTER TABLE monitors DROP CONSTRAINT IF EXISTS monitors_type_check;`);
+  await client.query(`ALTER TABLE monitors ADD CONSTRAINT monitors_type_check CHECK (type IN ('http', 'tcp', 'udp'));`);
 
   await client.query(`
     CREATE TABLE IF NOT EXISTS check_results (
