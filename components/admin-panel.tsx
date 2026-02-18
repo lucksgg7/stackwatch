@@ -54,6 +54,12 @@ const defaultForm = {
 const panelClass = "rounded-3xl border border-[#e7c866] bg-white/90 p-5 shadow-[0_14px_35px_rgba(129,94,13,0.14)]";
 const inputClass =
   "w-full rounded-xl border border-[#dabb67] bg-[#fff9e9] px-3 py-2 text-sm text-[#3f2f0a] placeholder:text-[#9f7f2d] outline-none transition focus:border-[#b8881f]";
+const btnPrimary =
+  "inline-flex items-center justify-center rounded-xl bg-[#c78a15] px-4 py-2 text-sm font-semibold text-white shadow-[0_6px_14px_rgba(161,112,14,0.35)] transition hover:-translate-y-0.5 hover:bg-[#ae7710] hover:shadow-[0_10px_18px_rgba(161,112,14,0.35)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b8881f] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9e9] disabled:cursor-not-allowed disabled:opacity-55";
+const btnSecondary =
+  "inline-flex items-center justify-center rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] shadow-[0_3px_10px_rgba(161,112,14,0.15)] transition hover:-translate-y-0.5 hover:border-[#bc8b22] hover:bg-[#ffefc0] hover:shadow-[0_8px_14px_rgba(161,112,14,0.2)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b8881f] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9e9] disabled:cursor-not-allowed disabled:opacity-55";
+const btnDanger =
+  "inline-flex items-center justify-center rounded-lg border border-[#e8b6b6] bg-[#fff1f1] px-2 py-1 text-xs font-semibold text-[#a12d2d] transition hover:-translate-y-0.5 hover:bg-[#ffe6e6] active:translate-y-0 active:scale-[0.98]";
 
 const categoryLabel: Record<MonitorTemplateCategory, string> = {
   infra: "Infra",
@@ -255,13 +261,13 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
         <div className="flex items-center gap-2">
           <Link
             href="/"
-            className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] transition hover:border-[#bc8b22] hover:bg-[#ffefc0]"
+            className={btnSecondary}
           >
             Back to status
           </Link>
           <button
             onClick={logout}
-            className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] transition hover:border-[#bc8b22] hover:bg-[#ffefc0]"
+            className={btnSecondary}
           >
             Sign out
           </button>
@@ -346,7 +352,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                     type="button"
                     onClick={() => applyTemplateToForm(template)}
                     disabled={!templateHost.trim()}
-                    className="rounded-lg border border-[#d8bb67] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#6b4f11] disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`${btnSecondary} rounded-lg px-2.5 py-1.5 text-xs`}
                   >
                     Use in form
                   </button>
@@ -354,7 +360,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                     type="button"
                     onClick={() => void createTemplateOneClick(template)}
                     disabled={!templateHost.trim() || creatingTemplateId === template.id}
-                    className="rounded-lg bg-[#c78a15] px-2.5 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className={`${btnPrimary} rounded-lg px-2.5 py-1.5 text-xs`}
                   >
                     {creatingTemplateId === template.id ? "Creating..." : "One-click create"}
                   </button>
@@ -420,7 +426,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
           </label>
           <div className="flex gap-2">
             <button
-              className="rounded-xl bg-[#c78a15] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#ae7710]"
+              className={btnPrimary}
               type="submit"
             >
               {editingId ? "Save" : "Create"}
@@ -428,7 +434,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
             {editingId && (
               <button
                 type="button"
-                className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11]"
+                className={btnSecondary}
                 onClick={() => {
                   setEditingId(null);
                   setForm(defaultForm);
@@ -457,14 +463,14 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
           />
           <div className="flex gap-2">
             <button
-              className="rounded-xl bg-[#b47f14] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#996b0e]"
+              className={btnPrimary}
               type="submit"
             >
               Save settings
             </button>
             <button
               type="button"
-              className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11]"
+              className={btnSecondary}
               onClick={() => void sendTestAlert()}
             >
               Send test alert
@@ -497,13 +503,13 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                   <td className="py-2">{m.enabled ? "Enabled" : "Disabled"}</td>
                   <td className="py-2 text-right">
                     <button
-                      className="mr-2 rounded-lg border border-[#d9ba66] bg-[#fff6dd] px-2 py-1 text-xs font-semibold text-[#6b4f11]"
+                      className={`${btnSecondary} mr-2 rounded-lg px-2 py-1 text-xs`}
                       onClick={() => startEdit(m)}
                     >
                       Edit
                     </button>
                     <button
-                      className="rounded-lg border border-[#e8b6b6] bg-[#fff1f1] px-2 py-1 text-xs font-semibold text-[#a12d2d]"
+                      className={btnDanger}
                       onClick={() => void deleteMonitor(m.id)}
                     >
                       Delete
@@ -518,6 +524,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
     </div>
   );
 }
+
 
 
 
