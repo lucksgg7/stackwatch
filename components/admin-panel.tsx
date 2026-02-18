@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { type ComponentType, FormEvent, useMemo, useState } from "react";
 import {
   BarChart3,
@@ -243,12 +244,20 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
           <h1 className="font-display text-3xl font-semibold text-[#3f2f0a]">Admin Panel</h1>
           <p className="text-sm text-[#6c5418]">Manage monitors, templates and alerts</p>
         </div>
-        <button
-          onClick={logout}
-          className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] transition hover:border-[#bc8b22] hover:bg-[#ffefc0]"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] transition hover:border-[#bc8b22] hover:bg-[#ffefc0]"
+          >
+            Back to status
+          </Link>
+          <button
+            onClick={logout}
+            className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] transition hover:border-[#bc8b22] hover:bg-[#ffefc0]"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       {message && (
@@ -492,4 +501,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
     </div>
   );
 }
+
+
+
 
