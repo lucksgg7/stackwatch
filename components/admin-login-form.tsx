@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 
@@ -20,7 +20,7 @@ export function AdminLoginForm() {
 
     setLoading(false);
     if (!response.ok) {
-      setError("Contraseña incorrecta.");
+      setError("Contrasena incorrecta.");
       return;
     }
 
@@ -28,21 +28,24 @@ export function AdminLoginForm() {
   };
 
   return (
-    <form onSubmit={submit} className="w-full max-w-sm space-y-3 rounded-2xl border border-slate-700 bg-slate-900/70 p-6">
-      <h1 className="text-xl font-semibold text-white">Admin Login</h1>
-      <p className="text-sm text-slate-300">Acceso privado al panel de monitores.</p>
+    <form
+      onSubmit={submit}
+      className="w-full max-w-sm space-y-3 rounded-3xl border border-[#e7c866] bg-white/90 p-6 shadow-[0_20px_45px_rgba(140,103,11,0.18)]"
+    >
+      <h1 className="font-display text-2xl font-semibold text-[#3f2f0a]">Admin Login</h1>
+      <p className="text-sm text-[#6c5418]">Acceso privado al panel de monitores.</p>
       <input
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Admin password"
-        className="w-full rounded-xl border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white"
+        className="w-full rounded-xl border border-[#dabb67] bg-[#fff9e9] px-3 py-2 text-sm text-[#3f2f0a] placeholder:text-[#9f7f2d] outline-none focus:border-[#b8881f]"
       />
-      {error && <p className="text-sm text-rose-300">{error}</p>}
+      {error && <p className="text-sm text-[#b22d2d]">{error}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:opacity-60"
+        className="w-full rounded-xl bg-[#c78a15] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#ae7710] disabled:opacity-60"
       >
         {loading ? "Entrando..." : "Entrar"}
       </button>

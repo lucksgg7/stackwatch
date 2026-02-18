@@ -31,6 +31,7 @@ StackWatch keeps a practical middle point:
 - HTTP and TCP checks.
 - Per-monitor interval and timeout settings.
 - Alert settings and test alert endpoint.
+- Template gallery with one-click monitor creation (infra, databases, gaming, devops, platform).
 
 ### Worker and incidents
 - Background worker loop (`scripts/worker.mjs`).
@@ -200,20 +201,15 @@ docker service logs -f status_status_worker
 - SSO/OAuth for admin.
 - Better RBAC and audit logs.
 - Dark/light theme switch.
+- Template packs import/export and community templates.
 
 ## Contributing
 
-1. Fork the repository.
-2. Create a branch: `feat/my-change`.
-3. Commit with clear message.
-4. Open a pull request with:
-- Problem statement
-- Change summary
-- Validation steps
+See `CONTRIBUTING.md` for workflow and PR guidelines.
 
 ## License
 
-Add your preferred license (`MIT` is common for this kind of project).
+This project is released under the MIT License. See `LICENSE`.
 
 ---
 
