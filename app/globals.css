@@ -1,14 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  --bg: #f6f8fb;
+  --bg-2: #e9eef6;
+  --text: #10213b;
+  --muted: #5d6d88;
+  --card: #ffffffcc;
+  --stroke: #c8d5eb;
+  --ok: #0ea96e;
+  --down: #e5484d;
+  --accent: #0f6fd7;
+  --accent-soft: #dceaff;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: var(--text);
+  font-family: var(--font-body), sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, #d7e7ff 0%, transparent 35%),
+    radial-gradient(circle at 88% 4%, #cfeee6 0%, transparent 32%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
 a {
   text-decoration: none;
 }
 
+.grid-fade-in {
+  animation: fade-up 550ms ease both;
+}
+
+.grid-fade-in-delay {
+  animation: fade-up 700ms ease both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

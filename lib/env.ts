@@ -8,6 +8,7 @@ export const env = {
   checkFailThreshold: Number(process.env.CHECK_FAIL_THRESHOLD || 2),
   checkRecoveryThreshold: Number(process.env.CHECK_RECOVERY_THRESHOLD || 2),
   publicRateLimitPerMin: Number(process.env.PUBLIC_RATE_LIMIT_PER_MIN || 120),
-  adminRateLimitPerMin: Number(process.env.ADMIN_RATE_LIMIT_PER_MIN || 60)
+  adminRateLimitPerMin: Number(process.env.ADMIN_RATE_LIMIT_PER_MIN || 60),
+  publicExposeTargets: process.env.PUBLIC_EXPOSE_TARGETS === "true"
 };
 

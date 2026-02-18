@@ -82,7 +82,7 @@ async function openIncidentIfNeeded(monitor: DbMonitor) {
   );
   if (openRows[0]) return;
 
-  const summary = `${monitor.name} is DOWN (${monitor.target})`;
+  const summary = `${monitor.name} is DOWN`;
   const { rows } = await query<{ id: number; started_at: string }>(
     "INSERT INTO incidents (monitor_id, started_at, summary) VALUES ($1, NOW(), $2) RETURNING id, started_at",
     [monitor.id, summary]

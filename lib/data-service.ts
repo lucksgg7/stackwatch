@@ -1,4 +1,13 @@
 import { query } from "@/lib/db";
+import { env } from "@/lib/env";
+
+function maybeHideTarget(target: string) {
+  return env.publicExposeTargets ? target : "Private target";
+}
+
+function maybeHideSummary(summary: string) {
+  return env.publicExposeTargets ? summary : "Service disruption detected";
+}
 
 export async function getPublicSummary() {
   const [monitorsRes, statsRes] = await Promise.all([
@@ -50,16 +59,30 @@ export async function getPublicSummary() {
   }
 
   const monitors = monitorsRes.rows.map((m) => ({
-    ...m,
+    id: m.id,
+    slug: m.slug,
+    name: m.name,
+    type: m.type,
+    target: maybeHideTarget(m.target),
     uptime24h: uptimeMap.get(m.id) ?? 100,
     status: m.last_state_ok === false ? "down" : "up"
   }));
 
-  const allOperational = monitors.every((m) => m.status === "up");
+  const totals = {
+    total: monitors.length,
+    up: monitors.filter((m) => m.status === "up").length,
+    down: monitors.filter((m) => m.status === "down").length,
+    uptimeAvg24h: monitors.length
+      ? Number((monitors.reduce((sum, m) => sum + m.uptime24h, 0) / monitors.length).toFixed(2))
+      : 100
+  };
+
+  const allOperational = totals.down === 0;
   return {
     allOperational,
     monitors,
-    stats: statsRes.rows[0] || null
+    stats: statsRes.rows[0] || null,
+    totals
   };
 }
 
@@ -115,9 +138,16 @@ export async function getMonitorBySlug(slug: string) {
   ]);
 
   return {
-    monitor,
+    monitor: {
+      id: monitor.id,
+      slug: monitor.slug,
+      name: monitor.name,
+      type: monitor.type,
+      target: maybeHideTarget(monitor.target),
+      last_state_ok: monitor.last_state_ok
+    },
     results: resultsRes.rows.reverse(),
-    incidents: incidentsRes.rows,
+    incidents: incidentsRes.rows.map((i) => ({ ...i, summary: maybeHideSummary(i.summary) })),
     uptime24h: Number(uptimeRes.rows[0]?.uptime_pct || 0)
   };
 }
@@ -130,12 +160,16 @@ export async function getVpsHistory(limit = 120) {
     mem_avail_mb: number;
     disk_used_percent: number;
     load1: number;
+    load5: number;
+    load15: number;
+    net_rx_bytes: string;
+    net_tx_bytes: string;
     checked_at: string;
   }>(
-    `SELECT cpu_percent, mem_used_mb, mem_avail_mb, disk_used_percent, load1, checked_at
+    `SELECT cpu_percent, mem_used_mb, mem_avail_mb, disk_used_percent,
+            load1, load5, load15, net_rx_bytes, net_tx_bytes, checked_at
      FROM vps_stats ORDER BY checked_at DESC LIMIT $1`,
     [safeLimit]
   );
   return rows.reverse();
 }
-
