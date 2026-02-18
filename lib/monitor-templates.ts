@@ -215,6 +215,18 @@ export const MONITOR_TEMPLATES: MonitorTemplate[] = [
     intervalSec: 45
   },
   {
+    id: "hytale",
+    name: "Hytale",
+    description: "Hytale server reachability (adjust port if needed).",
+    category: "gaming",
+    icon: "gamepad",
+    type: "tcp",
+    targetPattern: "{{host}}:25565",
+    targetHint: "hytale.example.com",
+    timeoutMs: 4000,
+    intervalSec: 45
+  },
+  {
     id: "node-exporter",
     name: "Node Exporter",
     description: "Node exporter metrics endpoint.",
