@@ -2,6 +2,16 @@
 
 Production-ready public status page and private admin panel for VPS and service monitoring.
 
+## Live demo
+
+Public demo with real VPS data: **https://status.lucasvicente.es**
+
+## Quick links
+
+- Live status: https://status.lucasvicente.es
+- Admin login: https://status.lucasvicente.es/admin
+- Docker image: `ghcr.io/lucksgg7/stackwatch`
+
 StackWatch is designed for people running VPS or dedicated servers who want:
 - A clean public status page.
 - Internal service checks (HTTP/TCP).
