@@ -21,8 +21,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid payload" }, { status: 400 });
   }
 
-  const current = await query<{ id: number; name: string; type: "http" | "tcp" | "udp"; target: string; expected_status: number | null; timeout_ms: number; interval_sec: number; enabled: boolean }>(
-    "SELECT id, name, type, target, expected_status, timeout_ms, interval_sec, enabled FROM monitors WHERE id = $1 LIMIT 1",
+  const current = await query<{ id: number; name: string; type: "http" | "tcp" | "udp"; target: string; featured: boolean; sort_order: number; expected_status: number | null; timeout_ms: number; interval_sec: number; enabled: boolean }>(
+    "SELECT id, name, type, target, featured, sort_order, expected_status, timeout_ms, interval_sec, enabled FROM monitors WHERE id = $1 LIMIT 1",
     [monitorId]
   );
   if (!current.rows[0]) return NextResponse.json({ error: "Monitor not found" }, { status: 404 });
@@ -31,6 +31,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     name: parsed.data.name ?? current.rows[0].name,
     type: parsed.data.type ?? current.rows[0].type,
     target: parsed.data.target ?? current.rows[0].target,
+    featured: parsed.data.featured ?? current.rows[0].featured,
+    sortOrder: parsed.data.sortOrder ?? current.rows[0].sort_order,
     expectedStatus: parsed.data.expectedStatus ?? current.rows[0].expected_status ?? undefined,
     timeoutMs: parsed.data.timeoutMs ?? current.rows[0].timeout_ms,
     intervalSec: parsed.data.intervalSec ?? current.rows[0].interval_sec,
@@ -44,10 +46,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
 
   const { rows } = await query(
     `UPDATE monitors
-     SET name = $1, type = $2, target = $3, expected_status = $4, timeout_ms = $5, interval_sec = $6, enabled = $7
-     WHERE id = $8
-     RETURNING id, slug, name, type, target, expected_status, timeout_ms, interval_sec, enabled, created_at`,
-    [next.name, next.type, next.target, next.expectedStatus || null, next.timeoutMs, next.intervalSec, next.enabled, monitorId]
+     SET name = $1, type = $2, target = $3, featured = $4, sort_order = $5, expected_status = $6, timeout_ms = $7, interval_sec = $8, enabled = $9
+     WHERE id = $10
+     RETURNING id, slug, name, type, target, featured, sort_order, expected_status, timeout_ms, interval_sec, enabled, created_at`,
+    [next.name, next.type, next.target, next.featured, next.sortOrder, next.expectedStatus || null, next.timeoutMs, next.intervalSec, next.enabled, monitorId]
   );
 
   return NextResponse.json({ monitor: rows[0] });

@@ -6,6 +6,8 @@ export interface Monitor {
   name: string;
   type: MonitorType;
   target: string;
+  featured: boolean;
+  sort_order: number;
   expected_status: number | null;
   timeout_ms: number;
   interval_sec: number;

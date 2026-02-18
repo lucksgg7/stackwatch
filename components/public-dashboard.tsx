@@ -26,8 +26,11 @@ type SummaryPayload = {
     name: string;
     type: string;
     target: string;
+    featured: boolean;
+    sort_order: number;
     uptime24h: number;
     status: "up" | "down";
+    recentChecks: boolean[];
   }>;
   totals: {
     total: number;
@@ -169,14 +172,15 @@ export function PublicDashboard() {
   const memUsedPct = memTotal > 0 ? (memUsed / memTotal) * 100 : 0;
   const netRx = Number(data.stats?.net_rx_bytes || 0);
   const netTx = Number(data.stats?.net_tx_bytes || 0);
+  const featuredMonitors = data.monitors.filter((m) => m.featured).slice(0, 3);
 
   return (
     <div className="space-y-5">
-      <section className="grid-fade-in rounded-3xl border border-[var(--stroke)] bg-[var(--card)] p-6 shadow-[0_20px_40px_rgba(12,36,79,0.08)] backdrop-blur">
+      <section className="grid-fade-in priority-card rounded-3xl border border-[var(--stroke)] bg-[var(--card)] p-6 shadow-[0_20px_40px_rgba(12,36,79,0.08)] backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#446089]">Public Status</p>
-            <h1 className="font-display mt-2 text-3xl font-semibold text-[#10213b] md:text-4xl">
+            <h1 className="font-display priority-headline mt-2 text-3xl font-semibold md:text-4xl">
               {data.allOperational ? "All systems operational" : "Service degradation detected"}
             </h1>
           </div>
@@ -200,12 +204,12 @@ export function PublicDashboard() {
       </section>
 
       <section className="grid-fade-in-delay grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <Metric title="CPU" value={`${Number(data.stats?.cpu_percent || 0).toFixed(1)}%`} subtitle="Current usage" />
+        <Metric title="CPU" value={`${Number(data.stats?.cpu_percent || 0).toFixed(1)}%`} subtitle="Current usage" priority />
         <Metric title="RAM used" value={`${memUsed} MB`} subtitle={`${memUsedPct.toFixed(1)}% of total`} />
         <Metric title="RAM free" value={`${memAvail} MB`} subtitle="Available memory" />
         <Metric title="Disk used" value={`${Number(data.stats?.disk_used_percent || 0).toFixed(1)}%`} subtitle="Filesystem /" />
-        <Metric title="Load 1m" value={`${Number(data.stats?.load1 || 0).toFixed(2)}`} subtitle={`5m: ${Number(data.stats?.load5 || 0).toFixed(2)} | 15m: ${Number(data.stats?.load15 || 0).toFixed(2)}`} />
-        <Metric title="Network" value={formatBytes(netRx + netTx)} subtitle="RX + TX since boot" />
+        <Metric title="Load 1m" value={`${Number(data.stats?.load1 || 0).toFixed(2)}`} subtitle={`5m: ${Number(data.stats?.load5 || 0).toFixed(2)} | 15m: ${Number(data.stats?.load15 || 0).toFixed(2)}`} priority />
+        <Metric title="Network" value={formatBytes(netRx + netTx)} subtitle="RX + TX since boot" priority />
       </section>
 
       <section className="grid gap-4 xl:grid-cols-12">
@@ -236,7 +240,7 @@ export function PublicDashboard() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-[var(--stroke)] bg-[var(--card)] p-4 xl:col-span-4">
+        <div className="priority-card-soft rounded-3xl border border-[var(--stroke)] bg-[var(--card)] p-4 xl:col-span-4">
           <p className="font-display text-lg font-semibold">Monitor health</p>
           <p className="text-sm text-[var(--muted)]">Current service state distribution</p>
           <div className="mt-4 h-56">
@@ -298,6 +302,25 @@ export function PublicDashboard() {
         </div>
       </section>
 
+      {featuredMonitors.length > 0 && (
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {featuredMonitors.map((monitor) => (
+            <article key={monitor.id} className="priority-card-soft rounded-3xl border border-[var(--stroke)] p-4">
+              <div className="flex items-center justify-between">
+                <p className="font-display text-lg font-semibold text-[#14345d]">{monitor.name}</p>
+                <StatusPill ok={monitor.status === "up"} />
+              </div>
+              <p className="mt-1 text-xs uppercase tracking-wide text-[var(--muted)]">{monitor.type}</p>
+              <p className="mt-2 text-sm text-[var(--muted)]">{monitor.target}</p>
+              <p className="mt-2 text-sm font-semibold text-[#16345c]">{monitor.uptime24h.toFixed(2)}% uptime (24h)</p>
+              <div className="mt-3">
+                <MonitorUptimeBars checks={monitor.recentChecks} />
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+
       <section className="rounded-3xl border border-[var(--stroke)] bg-[var(--card)] p-4">
         <div className="mb-3 flex items-center justify-between">
           <p className="font-display text-lg font-semibold">Service monitors</p>
@@ -312,13 +335,14 @@ export function PublicDashboard() {
                 <th className="py-2 pr-3">Type</th>
                 <th className="py-2 pr-3">Target</th>
                 <th className="py-2 pr-3">Uptime 24h</th>
+                <th className="py-2 pr-3">Recent checks</th>
                 <th className="py-2 pr-3">Status</th>
               </tr>
             </thead>
             <tbody>
               {data.monitors.length === 0 && (
                 <tr>
-                  <td className="py-6 text-[var(--muted)]" colSpan={5}>
+                  <td className="py-6 text-[var(--muted)]" colSpan={6}>
                     No monitors configured yet. Create one from the admin panel.
                   </td>
                 </tr>
@@ -334,6 +358,9 @@ export function PublicDashboard() {
                   <td className="py-2 pr-3 text-[var(--muted)]">{monitor.target}</td>
                   <td className="py-2 pr-3">{monitor.uptime24h.toFixed(2)}%</td>
                   <td className="py-2 pr-3">
+                    <MonitorUptimeBars checks={monitor.recentChecks} />
+                  </td>
+                  <td className="py-2 pr-3">
                     <StatusPill ok={monitor.status === "up"} />
                   </td>
                 </tr>
@@ -346,12 +373,30 @@ export function PublicDashboard() {
   );
 }
 
-function Metric({ title, value, subtitle }: { title: string; value: string; subtitle: string }) {
+function Metric({ title, value, subtitle, priority }: { title: string; value: string; subtitle: string; priority?: boolean }) {
   return (
-    <article className="rounded-2xl border border-[var(--stroke)] bg-white p-4 shadow-[0_8px_20px_rgba(15,45,90,0.06)]">
+    <article className={`rounded-2xl border border-[var(--stroke)] bg-white p-4 shadow-[0_8px_20px_rgba(15,45,90,0.06)] ${priority ? "priority-card-soft" : ""}`}>
       <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{title}</p>
       <p className="mt-2 font-display text-3xl font-semibold text-[#0f2d53]">{value}</p>
       <p className="mt-1 text-xs text-[var(--muted)]">{subtitle}</p>
     </article>
+  );
+}
+
+function MonitorUptimeBars({ checks }: { checks: boolean[] }) {
+  const padded = checks.length >= 48 ? checks.slice(-48) : [...Array(48 - checks.length).fill(null), ...checks];
+
+  return (
+    <div className="flex items-center gap-1">
+      {padded.map((ok, index) => (
+        <span
+          key={index}
+          className={`inline-block h-8 w-1.5 rounded-sm ${
+            ok === null ? "bg-[#d9e3f2]" : ok ? "bg-[#0ea96e]" : "bg-[#e5484d]"
+          }`}
+          title={ok === null ? "No data" : ok ? "Operational" : "Failure"}
+        />
+      ))}
+    </div>
   );
 }

@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS monitors (
   name TEXT NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('http', 'tcp', 'udp')),
   target TEXT NOT NULL,
+  featured BOOLEAN NOT NULL DEFAULT FALSE,
+  sort_order INTEGER NOT NULL DEFAULT 100,
   interval_sec INTEGER NOT NULL,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
   expected_status INTEGER,

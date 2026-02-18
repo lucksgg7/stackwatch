@@ -23,6 +23,8 @@ type Monitor = {
   name: string;
   type: "http" | "tcp" | "udp";
   target: string;
+  featured: boolean;
+  sort_order: number;
   expected_status: number | null;
   timeout_ms: number;
   interval_sec: number;
@@ -58,7 +60,9 @@ const defaultForm = {
   expectedStatus: 200,
   timeoutMs: 5000,
   intervalSec: 60,
-  enabled: true
+  enabled: true,
+  featured: false,
+  sortOrder: 100
 };
 
 const panelClass = "rounded-3xl border border-[#e7c866] bg-white/90 p-5 shadow-[0_14px_35px_rgba(129,94,13,0.14)]";
@@ -150,11 +154,28 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
       name: monitor.name,
       type: monitor.type,
       target: monitor.target,
+      featured: monitor.featured,
+      sortOrder: monitor.sort_order,
       expectedStatus: monitor.expected_status || 200,
       timeoutMs: monitor.timeout_ms,
       intervalSec: monitor.interval_sec,
       enabled: monitor.enabled
     });
+  };
+
+  const patchMonitor = async (id: number, payload: Record<string, unknown>) => {
+    const response = await fetch(`/api/admin/monitors/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      setMessage(data.error || "Could not update monitor layout.");
+      return false;
+    }
+    await refreshData();
+    return true;
   };
 
   const submitMonitor = async (e: FormEvent) => {
@@ -237,6 +258,8 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
       name: `${template.name} (${templateHost.trim()})`,
       type: template.type,
       target,
+      featured: false,
+      sortOrder: 100,
       expectedStatus: template.expectedStatus || 200,
       timeoutMs: template.timeoutMs,
       intervalSec: template.intervalSec,
@@ -442,6 +465,23 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
               onChange={(e) => setForm((p) => ({ ...p, intervalSec: Number(e.target.value) }))}
             />
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex items-center gap-2 text-sm text-[#6c5418]">
+              <input
+                type="checkbox"
+                checked={form.featured}
+                onChange={(e) => setForm((p) => ({ ...p, featured: e.target.checked }))}
+              />
+              Featured (primary)
+            </label>
+            <input
+              type="number"
+              className={inputClass}
+              placeholder="Sort order"
+              value={form.sortOrder}
+              onChange={(e) => setForm((p) => ({ ...p, sortOrder: Number(e.target.value || 100) }))}
+            />
+          </div>
           <label className="flex items-center gap-2 text-sm text-[#6c5418]">
             <input
               type="checkbox"
@@ -589,6 +629,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                 <th className="py-2">Target</th>
                 <th className="py-2">Interval</th>
                 <th className="py-2">State</th>
+                <th className="py-2">Priority</th>
                 <th className="py-2 text-right">Actions</th>
               </tr>
             </thead>
@@ -600,7 +641,14 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                   <td className="py-2">{m.target}</td>
                   <td className="py-2">{m.interval_sec}s</td>
                   <td className="py-2">{m.enabled ? "Enabled" : "Disabled"}</td>
+                  <td className="py-2">{m.featured ? `Featured (#${m.sort_order})` : `Secondary (#${m.sort_order})`}</td>
                   <td className="py-2 text-right">
+                    <button
+                      className={`${btnSecondary} mr-2 rounded-lg px-2 py-1 text-xs`}
+                      onClick={() => void patchMonitor(m.id, { featured: !m.featured })}
+                    >
+                      {m.featured ? "Set secondary" : "Set primary"}
+                    </button>
                     <button
                       className={`${btnSecondary} mr-2 rounded-lg px-2 py-1 text-xs`}
                       onClick={() => startEdit(m)}

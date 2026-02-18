@@ -17,12 +17,14 @@ export async function getPublicSummary() {
       name: string;
       type: string;
       target: string;
+      featured: boolean;
+      sort_order: number;
       enabled: boolean;
       last_state_ok: boolean | null;
       created_at: string;
     }>(
-      `SELECT id, slug, name, type, target, enabled, last_state_ok, created_at
-       FROM monitors WHERE enabled = TRUE ORDER BY name ASC`
+      `SELECT id, slug, name, type, target, featured, sort_order, enabled, last_state_ok, created_at
+       FROM monitors WHERE enabled = TRUE ORDER BY featured DESC, sort_order ASC, name ASC`
     ),
     query<{
       cpu_percent: number;
@@ -45,8 +47,10 @@ export async function getPublicSummary() {
 
   const monitorIds = monitorsRes.rows.map((m) => m.id);
   let uptimeMap = new Map<number, number>();
+  let checksMap = new Map<number, boolean[]>();
   if (monitorIds.length) {
-    const uptimeRes = await query<{ monitor_id: number; uptime_pct: number }>(
+    const [uptimeRes, checksRes] = await Promise.all([
+      query<{ monitor_id: number; uptime_pct: number }>(
       `SELECT monitor_id,
               COALESCE(ROUND(100.0 * AVG(CASE WHEN ok THEN 1 ELSE 0 END), 2), 0) AS uptime_pct
        FROM check_results
@@ -54,8 +58,28 @@ export async function getPublicSummary() {
          AND checked_at >= NOW() - INTERVAL '24 hours'
        GROUP BY monitor_id`,
       [monitorIds]
-    );
+      ),
+      query<{ monitor_id: number; ok: boolean }>(
+        `SELECT monitor_id, ok
+         FROM (
+           SELECT monitor_id, ok,
+                  ROW_NUMBER() OVER (PARTITION BY monitor_id ORDER BY checked_at DESC) AS rn
+           FROM check_results
+           WHERE monitor_id = ANY($1::bigint[])
+         ) q
+         WHERE rn <= 48
+         ORDER BY monitor_id ASC, rn DESC`,
+        [monitorIds]
+      )
+    ]);
     uptimeMap = new Map(uptimeRes.rows.map((r) => [r.monitor_id, Number(r.uptime_pct)]));
+    const groupedChecks = new Map<number, boolean[]>();
+    for (const row of checksRes.rows) {
+      const list = groupedChecks.get(row.monitor_id) || [];
+      list.push(Boolean(row.ok));
+      groupedChecks.set(row.monitor_id, list);
+    }
+    checksMap = groupedChecks;
   }
 
   const monitors = monitorsRes.rows.map((m) => ({
@@ -63,9 +87,12 @@ export async function getPublicSummary() {
     slug: m.slug,
     name: m.name,
     type: m.type,
+    featured: Boolean(m.featured),
+    sort_order: Number(m.sort_order || 100),
     target: maybeHideTarget(m.target),
     uptime24h: uptimeMap.get(m.id) ?? 100,
-    status: m.last_state_ok === false ? "down" : "up"
+    status: m.last_state_ok === false ? "down" : "up",
+    recentChecks: checksMap.get(m.id) || []
   }));
 
   const totals = {

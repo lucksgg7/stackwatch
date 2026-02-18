@@ -32,7 +32,8 @@ StackWatch keeps a practical middle point:
 - Global system health banner.
 - Live VPS metrics: CPU, RAM, disk, load, network.
 - Historical charts (CPU, disk, load, network throughput).
-- Per-monitor status table with 24h uptime.
+- Detailed monitor rows with recent check bars and 24h uptime.
+- Featured (primary) monitor cards.
 - Public monitor detail page: latency trend and incidents.
 
 ### Admin panel
@@ -42,6 +43,7 @@ StackWatch keeps a practical middle point:
 - Per-monitor interval and timeout settings.
 - Multi-channel alert settings (Webhook, Discord, Telegram, SMTP email) and test alert endpoint.
 - Template gallery with one-click monitor creation (infra, databases, gaming, devops, platform).
+- Monitor priority controls (featured + sort order) to customize public layout.
 
 ### Worker and incidents
 - Background worker loop (`scripts/worker.mjs`).

@@ -37,6 +37,8 @@ export async function ensureSchema() {
       name TEXT NOT NULL,
       type TEXT NOT NULL CHECK (type IN ('http', 'tcp', 'udp')),
       target TEXT NOT NULL,
+      featured BOOLEAN NOT NULL DEFAULT FALSE,
+      sort_order INTEGER NOT NULL DEFAULT 100,
       expected_status INTEGER,
       timeout_ms INTEGER NOT NULL DEFAULT 5000,
       interval_sec INTEGER NOT NULL DEFAULT 60,
@@ -50,6 +52,8 @@ export async function ensureSchema() {
 
   await client.query(`ALTER TABLE monitors DROP CONSTRAINT IF EXISTS monitors_type_check;`);
   await client.query(`ALTER TABLE monitors ADD CONSTRAINT monitors_type_check CHECK (type IN ('http', 'tcp', 'udp'));`);
+  await client.query(`ALTER TABLE monitors ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE;`);
+  await client.query(`ALTER TABLE monitors ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 100;`);
 
   await client.query(`
     CREATE TABLE IF NOT EXISTS check_results (

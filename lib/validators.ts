@@ -10,7 +10,9 @@ export const monitorCreateSchema = z.object({
   expectedStatus: z.number().int().min(100).max(599).optional(),
   timeoutMs: z.number().int().min(500).max(30000).default(5000),
   intervalSec: z.number().int().min(30).max(3600).default(60),
-  enabled: z.boolean().default(true)
+  enabled: z.boolean().default(true),
+  featured: z.boolean().default(false),
+  sortOrder: z.number().int().min(0).max(10000).default(100)
 }).superRefine((value, ctx) => {
   if (value.type === "http" && !httpUrlRegex.test(value.target)) {
     ctx.addIssue({ code: "custom", message: "HTTP monitor target must be a valid http(s) URL", path: ["target"] });

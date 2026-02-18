@@ -10,9 +10,9 @@ export async function GET() {
   if (!auth.ok) return auth.response;
 
   const { rows } = await query(
-    `SELECT id, slug, name, type, target, expected_status, timeout_ms, interval_sec,
+    `SELECT id, slug, name, type, target, featured, sort_order, expected_status, timeout_ms, interval_sec,
             enabled, fail_streak, ok_streak, last_state_ok, created_at
-     FROM monitors ORDER BY id ASC`
+     FROM monitors ORDER BY featured DESC, sort_order ASC, id ASC`
   );
   return NextResponse.json({ monitors: rows });
 }
@@ -36,10 +36,21 @@ export async function POST(request: Request) {
 
   const { rows } = await query(
     `INSERT INTO monitors (
-      slug, name, type, target, expected_status, timeout_ms, interval_sec, enabled
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-    RETURNING id, slug, name, type, target, expected_status, timeout_ms, interval_sec, enabled, created_at`,
-    [slug, input.name, input.type, input.target, input.expectedStatus || null, input.timeoutMs, input.intervalSec, input.enabled]
+      slug, name, type, target, featured, sort_order, expected_status, timeout_ms, interval_sec, enabled
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+    RETURNING id, slug, name, type, target, featured, sort_order, expected_status, timeout_ms, interval_sec, enabled, created_at`,
+    [
+      slug,
+      input.name,
+      input.type,
+      input.target,
+      Boolean(input.featured),
+      input.sortOrder ?? 100,
+      input.expectedStatus || null,
+      input.timeoutMs,
+      input.intervalSec,
+      input.enabled
+    ]
   );
 
   return NextResponse.json({ monitor: rows[0] });

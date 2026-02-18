@@ -18,9 +18,9 @@ export default async function AdminPage() {
 
   const [{ rows: monitors }, settings] = await Promise.all([
     query<AdminMonitor>(
-      `SELECT id, slug, name, type, target, expected_status, timeout_ms, interval_sec,
+      `SELECT id, slug, name, type, target, featured, sort_order, expected_status, timeout_ms, interval_sec,
               enabled, fail_streak, ok_streak, last_state_ok, created_at
-       FROM monitors ORDER BY id ASC`
+       FROM monitors ORDER BY featured DESC, sort_order ASC, id ASC`
     ),
     getSettings()
   ]);
