@@ -136,24 +136,24 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
     const payload = (await response.json().catch(() => ({}))) as { error?: string };
 
     if (!response.ok) {
-      setMessage(payload.error || "No se pudo guardar monitor.");
+      setMessage(payload.error || "Could not save monitor.");
       return;
     }
 
     setForm(defaultForm);
     setEditingId(null);
-    setMessage(editingId ? "Monitor actualizado." : "Monitor creado.");
+    setMessage(editingId ? "Monitor updated." : "Monitor created.");
     await refreshData();
   };
 
   const deleteMonitor = async (id: number) => {
-    if (!window.confirm("Eliminar monitor?")) return;
+    if (!window.confirm("Delete monitor?")) return;
     const response = await fetch(`/api/admin/monitors/${id}`, { method: "DELETE" });
     if (!response.ok) {
-      setMessage("No se pudo eliminar monitor.");
+      setMessage("Could not delete monitor.");
       return;
     }
-    setMessage("Monitor eliminado.");
+    setMessage("Monitor deleted.");
     if (editingId === id) {
       setEditingId(null);
       setForm(defaultForm);
@@ -169,19 +169,19 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
       body: JSON.stringify(settings)
     });
     if (!response.ok) {
-      setMessage("No se pudieron guardar settings.");
+      setMessage("Could not save settings.");
       return;
     }
-    setMessage("Settings guardados.");
+    setMessage("Settings saved.");
   };
 
   const sendTestAlert = async () => {
     const response = await fetch("/api/admin/test-alert", { method: "POST" });
     if (!response.ok) {
-      setMessage("Fallo test alert.");
+      setMessage("Test alert failed.");
       return;
     }
-    setMessage("Test alert enviado.");
+    setMessage("Test alert sent.");
   };
 
   const logout = async () => {
@@ -191,7 +191,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
 
   const createFromTemplatePayload = (template: MonitorTemplate) => {
     if (!templateHost.trim()) {
-      setMessage(`Indica host/base para usar la plantilla ${template.name}.`);
+      setMessage(`Provide a host/base to use template ${template.name}.`);
       return null;
     }
 
@@ -213,7 +213,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
 
     setEditingId(null);
     setForm(payload);
-    setMessage(`Plantilla ${template.name} aplicada al formulario.`);
+    setMessage(`Template ${template.name} applied to form.`);
   };
 
   const createTemplateOneClick = async (template: MonitorTemplate) => {
@@ -228,11 +228,11 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
     const data = (await response.json().catch(() => ({}))) as { error?: string };
 
     if (!response.ok) {
-      setMessage(data.error || `No se pudo crear monitor para ${template.name}.`);
+      setMessage(data.error || `Could not create monitor for ${template.name}.`);
       return;
     }
 
-    setMessage(`Monitor ${template.name} creado.`);
+    setMessage(`Monitor ${template.name} created.`);
     await refreshData();
   };
 
@@ -241,13 +241,13 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
       <header className={`${panelClass} flex items-center justify-between`}>
         <div>
           <h1 className="font-display text-3xl font-semibold text-[#3f2f0a]">Admin Panel</h1>
-          <p className="text-sm text-[#6c5418]">Gestion de monitores, plantillas y alertas</p>
+          <p className="text-sm text-[#6c5418]">Manage monitors, templates and alerts</p>
         </div>
         <button
           onClick={logout}
           className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11] transition hover:border-[#bc8b22] hover:bg-[#ffefc0]"
         >
-          Cerrar sesion
+          Sign out
         </button>
       </header>
 
@@ -260,8 +260,8 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
       <section className={`${panelClass} space-y-4`}>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-lg font-semibold text-[#4a370c]">Plantillas rápidas</p>
-            <p className="text-sm text-[#6c5418]">Crea monitores populares en segundos.</p>
+            <p className="text-lg font-semibold text-[#4a370c]">Quick templates</p>
+            <p className="text-sm text-[#6c5418]">Create common monitors in seconds.</p>
           </div>
           <div className="w-full max-w-xs">
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#6c5418]">Host / base</label>
@@ -282,7 +282,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
               selectedCategory === "all" ? "bg-[#c78a15] text-white" : "border border-[#d8bb67] bg-[#fff6dd] text-[#6b4f11]"
             }`}
           >
-            Todas
+            All
           </button>
           {(Object.keys(categoryLabel) as MonitorTemplateCategory[]).map((category) => (
             <button
@@ -324,14 +324,14 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                     onClick={() => applyTemplateToForm(template)}
                     className="rounded-lg border border-[#d8bb67] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#6b4f11]"
                   >
-                    Usar en formulario
+                    Use in form
                   </button>
                   <button
                     type="button"
                     onClick={() => void createTemplateOneClick(template)}
                     className="rounded-lg bg-[#c78a15] px-2.5 py-1.5 text-xs font-semibold text-white"
                   >
-                    Crear 1 clic
+                    One-click create
                   </button>
                 </div>
               </article>
@@ -342,10 +342,10 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
 
       <section className="grid gap-4 lg:grid-cols-2">
         <form onSubmit={submitMonitor} className={`${panelClass} space-y-3`}>
-          <p className="text-base font-semibold text-[#4a370c]">{editingId ? "Editar monitor" : "Crear monitor"}</p>
+          <p className="text-base font-semibold text-[#4a370c]">{editingId ? "Edit monitor" : "Create monitor"}</p>
           <input
             className={inputClass}
-            placeholder="Nombre"
+            placeholder="Name"
             value={form.name}
             onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
           />
@@ -398,7 +398,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
               className="rounded-xl bg-[#c78a15] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#ae7710]"
               type="submit"
             >
-              {editingId ? "Guardar" : "Crear"}
+              {editingId ? "Save" : "Create"}
             </button>
             {editingId && (
               <button
@@ -409,14 +409,14 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                   setForm(defaultForm);
                 }}
               >
-                Cancelar
+                Cancel
               </button>
             )}
           </div>
         </form>
 
         <form onSubmit={saveSettings} className={`${panelClass} space-y-3`}>
-          <p className="text-base font-semibold text-[#4a370c]">Alertas</p>
+          <p className="text-base font-semibold text-[#4a370c]">Alerts</p>
           <input
             className={inputClass}
             placeholder="Webhook URL"
@@ -434,31 +434,31 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
               className="rounded-xl bg-[#b47f14] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#996b0e]"
               type="submit"
             >
-              Guardar settings
+              Save settings
             </button>
             <button
               type="button"
               className="rounded-xl border border-[#d9ba66] bg-[#fff6dd] px-4 py-2 text-sm font-semibold text-[#6b4f11]"
               onClick={() => void sendTestAlert()}
             >
-              Test alert
+              Send test alert
             </button>
           </div>
         </form>
       </section>
 
       <section className={panelClass}>
-        <p className="text-base font-semibold text-[#4a370c]">Monitores actuales</p>
+        <p className="text-base font-semibold text-[#4a370c]">Current monitors</p>
         <div className="mt-3 overflow-x-auto">
           <table className="min-w-full text-left text-sm text-[#3f2f0a]">
             <thead>
               <tr className="border-b border-[#ecd493] text-[#6c5418]">
-                <th className="py-2">Nombre</th>
-                <th className="py-2">Tipo</th>
+                <th className="py-2">Name</th>
+                <th className="py-2">Type</th>
                 <th className="py-2">Target</th>
                 <th className="py-2">Interval</th>
                 <th className="py-2">Estado</th>
-                <th className="py-2 text-right">Acciones</th>
+                <th className="py-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -474,13 +474,13 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                       className="mr-2 rounded-lg border border-[#d9ba66] bg-[#fff6dd] px-2 py-1 text-xs font-semibold text-[#6b4f11]"
                       onClick={() => startEdit(m)}
                     >
-                      Editar
+                      Edit
                     </button>
                     <button
                       className="rounded-lg border border-[#e8b6b6] bg-[#fff1f1] px-2 py-1 text-xs font-semibold text-[#a12d2d]"
                       onClick={() => void deleteMonitor(m.id)}
                     >
-                      Eliminar
+                      Delete
                     </button>
                   </td>
                 </tr>

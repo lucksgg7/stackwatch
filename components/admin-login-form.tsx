@@ -20,7 +20,7 @@ export function AdminLoginForm() {
 
     setLoading(false);
     if (!response.ok) {
-      setError("Contrasena incorrecta.");
+      setError("Invalid password.");
       return;
     }
 
@@ -33,7 +33,7 @@ export function AdminLoginForm() {
       className="w-full max-w-sm space-y-3 rounded-3xl border border-[#e7c866] bg-white/90 p-6 shadow-[0_20px_45px_rgba(140,103,11,0.18)]"
     >
       <h1 className="font-display text-2xl font-semibold text-[#3f2f0a]">Admin Login</h1>
-      <p className="text-sm text-[#6c5418]">Acceso privado al panel de monitores.</p>
+      <p className="text-sm text-[#6c5418]">Private access to monitoring controls.</p>
       <input
         type="password"
         value={password}
@@ -47,7 +47,7 @@ export function AdminLoginForm() {
         disabled={loading}
         className="w-full rounded-xl bg-[#c78a15] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#ae7710] disabled:opacity-60"
       >
-        {loading ? "Entrando..." : "Entrar"}
+        {loading ? "Signing in..." : "Sign in"}
       </button>
     </form>
   );
