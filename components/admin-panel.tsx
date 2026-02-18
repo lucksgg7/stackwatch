@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { type ComponentType, FormEvent, useMemo, useState } from "react";
+import { type ComponentType, FormEvent, useMemo, useRef, useState } from "react";
 import {
   BarChart3,
   Cloud,
@@ -84,7 +84,10 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
   const [templateHost, setTemplateHost] = useState("");
+  const [templateHint, setTemplateHint] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<"all" | MonitorTemplateCategory>("all");
+  const [creatingTemplateId, setCreatingTemplateId] = useState<string | null>(null);
+  const hostInputRef = useRef<HTMLInputElement | null>(null);
 
   const filteredTemplates = useMemo(
     () =>
@@ -192,9 +195,11 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
 
   const createFromTemplatePayload = (template: MonitorTemplate) => {
     if (!templateHost.trim()) {
-      setMessage(`Provide a host/base to use template ${template.name}.`);
+      setTemplateHint("Enter a host/base first (example: status.lucasvicente.es).");
+      hostInputRef.current?.focus();
       return null;
     }
+    setTemplateHint("");
 
     const target = resolveTemplateTarget(template.targetPattern, templateHost);
     return {
@@ -220,6 +225,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
   const createTemplateOneClick = async (template: MonitorTemplate) => {
     const payload = createFromTemplatePayload(template);
     if (!payload) return;
+    setCreatingTemplateId(template.id);
 
     const response = await fetch("/api/admin/monitors", {
       method: "POST",
@@ -230,10 +236,12 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
 
     if (!response.ok) {
       setMessage(data.error || `Could not create monitor for ${template.name}.`);
+      setCreatingTemplateId(null);
       return;
     }
 
     setMessage(`Monitor ${template.name} created.`);
+    setCreatingTemplateId(null);
     await refreshData();
   };
 
@@ -269,19 +277,25 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
       <section className={`${panelClass} space-y-4`}>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-lg font-semibold text-[#4a370c]">Quick templates</p>
-            <p className="text-sm text-[#6c5418]">Create common monitors in seconds.</p>
+            <p className="text-lg font-semibold text-[#4a370c]">Template Library</p>
+            <p className="text-sm text-[#6c5418]">Prebuilt monitor presets for common stacks and game servers.</p>
           </div>
           <div className="w-full max-w-xs">
             <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[#6c5418]">Host / base</label>
             <input
+              ref={hostInputRef}
               className={inputClass}
-              placeholder="ej: status.lucasvicente.es"
+              placeholder="e.g. status.lucasvicente.es"
               value={templateHost}
-              onChange={(e) => setTemplateHost(e.target.value)}
+              onChange={(e) => {
+                setTemplateHost(e.target.value);
+                if (templateHint) setTemplateHint("");
+              }}
             />
+            <p className="mt-1 text-xs text-[#7b6222]">Required for template actions.</p>
           </div>
         </div>
+        {templateHint && <p className="rounded-lg border border-[#f0d08a] bg-[#fff4cf] px-3 py-2 text-xs text-[#7a5a11]">{templateHint}</p>}
 
         <div className="flex flex-wrap gap-2">
           <button
@@ -331,16 +345,18 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                   <button
                     type="button"
                     onClick={() => applyTemplateToForm(template)}
-                    className="rounded-lg border border-[#d8bb67] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#6b4f11]"
+                    disabled={!templateHost.trim()}
+                    className="rounded-lg border border-[#d8bb67] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#6b4f11] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Use in form
                   </button>
                   <button
                     type="button"
                     onClick={() => void createTemplateOneClick(template)}
-                    className="rounded-lg bg-[#c78a15] px-2.5 py-1.5 text-xs font-semibold text-white"
+                    disabled={!templateHost.trim() || creatingTemplateId === template.id}
+                    className="rounded-lg bg-[#c78a15] px-2.5 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    One-click create
+                    {creatingTemplateId === template.id ? "Creating..." : "One-click create"}
                   </button>
                 </div>
               </article>
@@ -435,6 +451,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
           <input
             className={inputClass}
             placeholder="Email (opcional)"
+            
             value={settings.alertEmail}
             onChange={(e) => setSettings((s) => ({ ...s, alertEmail: e.target.value }))}
           />
@@ -466,7 +483,7 @@ export function AdminPanel({ initialMonitors, initialSettings, initialTemplates 
                 <th className="py-2">Type</th>
                 <th className="py-2">Target</th>
                 <th className="py-2">Interval</th>
-                <th className="py-2">Estado</th>
+                <th className="py-2">State</th>
                 <th className="py-2 text-right">Actions</th>
               </tr>
             </thead>
