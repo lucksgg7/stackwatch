@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  vps_monitor_app:
+    image: ghcr.io/lucksgg7/vps-monitor:main
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - APP_URL=https://status.mi-dominio
+      - DATABASE_URL=postgres://vpsmonitor:change_me@vps_monitor_postgres:5432/vpsmonitor?sslmode=disable
+      - AUTH_SECRET=change-me-super-secret
+      - ADMIN_PASSWORD=change-me-admin-password
+      - WORKER_TOKEN=change-me-worker-token
+      - CHECK_FAIL_THRESHOLD=2
+      - CHECK_RECOVERY_THRESHOLD=2
+      - PUBLIC_RATE_LIMIT_PER_MIN=120
+      - ADMIN_RATE_LIMIT_PER_MIN=60
+    networks:
+      - stackwatch_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  vps_monitor_worker:
+    image: ghcr.io/lucksgg7/vps-monitor:main
+    environment:
+      - INTERNAL_APP_URL=http://vps_monitor_app:3000
+      - WORKER_TOKEN=change-me-worker-token
+      - WORKER_INTERVAL_MS=30000
+      - DATABASE_URL=postgres://vpsmonitor:change_me@vps_monitor_postgres:5432/vpsmonitor?sslmode=disable
+      - AUTH_SECRET=change-me-super-secret
+      - ADMIN_PASSWORD=change-me-admin-password
+    command: ["node", "scripts/worker.mjs"]
+    networks:
+      - stackwatch_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  vps_monitor_postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=vpsmonitor
+      - POSTGRES_USER=vpsmonitor
+      - POSTGRES_PASSWORD=change_me
+    volumes:
+      - vps_monitor_postgres:/var/lib/postgresql/data
+    networks:
+      - stackwatch_net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  vps_monitor_postgres:
+
+networks:
+  stackwatch_net:
+    driver: overlay
+

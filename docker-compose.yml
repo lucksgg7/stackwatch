@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    image: vps-monitor:local
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - APP_URL=http://localhost:3000
+      - DATABASE_URL=postgres://vpsmonitor:vpsmonitor@postgres:5432/vpsmonitor?sslmode=disable
+      - AUTH_SECRET=change-me-super-secret
+      - ADMIN_PASSWORD=admin123
+      - WORKER_TOKEN=worker-secret
+      - CHECK_FAIL_THRESHOLD=2
+      - CHECK_RECOVERY_THRESHOLD=2
+    depends_on:
+      - postgres
+
+  worker:
+    image: vps-monitor:local
+    environment:
+      - INTERNAL_APP_URL=http://app:3000
+      - WORKER_TOKEN=worker-secret
+      - WORKER_INTERVAL_MS=30000
+    command: ["node", "scripts/worker.mjs"]
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=vpsmonitor
+      - POSTGRES_USER=vpsmonitor
+      - POSTGRES_PASSWORD=vpsmonitor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
